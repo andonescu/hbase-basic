@@ -21,6 +21,22 @@ public class AddData {
 
         TableName tableName = creatTable(conf);
         addData(conf, tableName);
+
+        deleteTableIfExists(conf, tableName);
+
+    }
+
+    private static void deleteTableIfExists(Configuration conf, TableName tableName) throws IOException {
+        Admin admin = ConnectionFactory.createConnection(conf).getAdmin();
+
+        if (!admin.tableExists(tableName)) {
+            System.out.println("table does not exists!");
+        } else {
+            admin.disableTable(tableName);
+            admin.deleteTable(tableName);
+        }
+
+        admin.close();
     }
 
     private static void addData(Configuration conf, TableName tableName) throws IOException {
@@ -38,6 +54,8 @@ public class AddData {
         table.put(put);
         System.out.println("insert recored " + rowKey + " to table "
                 + tableName + " ok.");
+
+        table.close();
     }
 
     public static TableName creatTable(Configuration conf)

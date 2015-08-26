@@ -13,6 +13,8 @@ public class AddData {
     public static void main(String[] args) throws IOException {
 
         Configuration conf = HBaseConfiguration.create();
+        conf.set("hbase.zookeeper.quorum", "172.30.140.203");
+        conf.set("hbase.master", "172.30.140.203");
 
         HTable table = new HTable(conf, "ando-table");
 

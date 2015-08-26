@@ -2,29 +2,39 @@ package basic;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.util.Bytes;
-
-import java.io.IOException;
+import org.apache.hadoop.hbase.HColumnDescriptor;
+import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Admin;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
 
 public class AddData {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
 
         Configuration conf = HBaseConfiguration.create();
         conf.set("hbase.zookeeper.quorum", "172.30.140.203");
         conf.set("hbase.master", "172.30.140.203");
 
-        HTable table = new HTable(conf, "ando-table");
+        creatTable(conf);
+    }
 
-        Put put = new Put(Bytes.toBytes("row1"));
-        put.addColumn(Bytes.toBytes("colfam1"), Bytes.toBytes("qual1"), Bytes.toBytes("value1"));
-        put.addColumn(Bytes.toBytes("colfam1"), Bytes.toBytes("qual2"), Bytes.toBytes("value2"));
-        put.addColumn(Bytes.toBytes("colfam2"), Bytes.toBytes("qual1"), Bytes.toBytes("value3"));
+    public static void creatTable(Configuration conf)
+            throws Exception {
+        Admin admin = ConnectionFactory.createConnection(conf).getAdmin();
+        TableName tableName = TableName.valueOf("ando-test");
 
-        table.put(put);
-        table.flushCommits();
-        table.close();
+
+        if (admin.tableExists(tableName)) {
+            System.out.println("table already exists!");
+        } else {
+            HTableDescriptor tableDescriptor = new HTableDescriptor(tableName);
+            tableDescriptor.addFamily(new HColumnDescriptor("personal"));
+            tableDescriptor.addFamily(new HColumnDescriptor("contactinfo"));
+            tableDescriptor.addFamily(new HColumnDescriptor("creditcard"));
+            admin.createTable(tableDescriptor);
+
+            System.out.println("create table " + tableName + " ok.");
+        }
     }
 }

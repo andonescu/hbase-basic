@@ -1,3 +1,4 @@
 .idea
 /hbase-basic.iml
 *.class
+classes

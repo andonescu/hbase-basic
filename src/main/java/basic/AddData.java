@@ -11,7 +11,9 @@ import java.io.IOException;
 public class AddData {
 
     public static void main(String[] args) throws IOException {
+
         Configuration conf = HBaseConfiguration.create();
+
         HTable table = new HTable(conf, "ando-table");
 
         Put put = new Put(Bytes.toBytes("row1"));

@@ -1,10 +1,7 @@
 package basic;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -22,9 +19,34 @@ public class AddData {
         TableName tableName = creatTable(conf);
         addData(conf, tableName);
 
+        getAllRecord(conf, tableName);
+
         deleteTableIfExists(conf, tableName);
 
     }
+
+    public static void getAllRecord (Configuration conf, TableName tableName) {
+        try{
+            Table table = ConnectionFactory
+                    .createConnection(conf)
+                    .getTable(tableName);
+
+            Scan s = new Scan();
+            ResultScanner ss = table.getScanner(s);
+            for(Result r:ss){
+                for(KeyValue kv : r.raw()){
+                    System.out.print(new String(kv.getRow()) + " ");
+                    System.out.print(new String(kv.getFamily()) + ":");
+                    System.out.print(new String(kv.getQualifier()) + " ");
+                    System.out.print(kv.getTimestamp() + " ");
+                    System.out.println(new String(kv.getValue()));
+                }
+            }
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
 
     private static void deleteTableIfExists(Configuration conf, TableName tableName) throws IOException {
         Admin admin = ConnectionFactory.createConnection(conf).getAdmin();
@@ -49,7 +71,7 @@ public class AddData {
 
 
         Put put = new Put(Bytes.toBytes(rowKey));
-        put.addColumn(Bytes.toBytes("personal"), Bytes.toBytes("name"), Bytes.toBytes("Ionut Ando"));
+        put.addColumn(Bytes.toBytes("personal"), Bytes.toBytes("name "), Bytes.toBytes("Ionut Ando"));
         put.addColumn(Bytes.toBytes("contactinfo"), Bytes.toBytes(""), Bytes.toBytes("ando@ando.ro"));
         table.put(put);
         System.out.println("insert recored " + rowKey + " to table "
